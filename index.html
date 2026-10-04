@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AutoMatch 2.0 — Vind jouw perfecte auto</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial;background:#07101d;color:#f4f7fb}button,input,select{font:inherit}
+:root{--blue:#63adff;--panel:#101c2d;--line:#ffffff16;--muted:#93a6bd}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 80% 0,#214e82 0,transparent 32%),radial-gradient(circle at 0 70%,#102c49 0,transparent 30%)}
+header{height:72px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 5%;background:#07101ddd;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.logo{font-size:25px;font-weight:950;letter-spacing:-1.4px}.logo i{font-style:normal;color:var(--blue)}
+nav{display:flex;gap:9px}.navbtn{background:#ffffff09;border:1px solid var(--line);color:white;padding:9px 13px;border-radius:12px;cursor:pointer}.navbtn b{color:var(--blue)}
+main{max-width:1180px;margin:auto;padding:42px 20px 80px}.hero{text-align:center;margin-bottom:30px}.hero .pill{display:inline-block;color:#8dc8ff;background:#63adff12;border:1px solid #63adff30;padding:7px 12px;border-radius:99px;font-size:12px;font-weight:800}.hero h1{font-size:clamp(38px,6vw,68px);line-height:.98;letter-spacing:-3.5px;margin:15px 0 12px}.hero p{color:var(--muted);font-size:17px}
+.panel{background:#0e1a2beF;border:1px solid var(--line);border-radius:26px;box-shadow:0 30px 90px #0006;padding:28px}.step{display:none}.step.active{display:block}.eyebrow{color:var(--blue);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1.6px}.q{font-size:30px;font-weight:850;letter-spacing:-1px;margin:7px 0 24px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.opt{min-height:78px;text-align:left;border:1px solid var(--line);border-radius:17px;background:#ffffff07;color:white;padding:16px;cursor:pointer;transition:.18s}.opt:hover{background:#ffffff0d;transform:translateY(-1px)}.opt.sel{border-color:var(--blue);background:#63adff16;box-shadow:0 0 0 2px #63adff20}.opt strong{display:block}.small{font-size:12px;color:var(--muted);margin-top:5px}
+.brandgrid{grid-template-columns:repeat(4,1fr)}.brand{text-align:center;min-height:58px;padding:14px;font-weight:850}
+.rangebox{background:#ffffff06;border:1px solid var(--line);border-radius:18px;padding:25px}.range{width:100%;accent-color:#63adff}.rangevalue{font-size:35px;font-weight:900;margin-bottom:10px}.rangehint{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.actions{display:flex;justify-content:space-between;margin-top:25px}.btn{border:0;border-radius:13px;padding:13px 19px;font-weight:850;cursor:pointer}.primary{background:var(--blue);color:#06101b}.secondary{background:#ffffff0b;color:white;border:1px solid var(--line)}.primary:disabled{opacity:.35}
+.results{display:none}.results.show{display:block}.resulttop{display:flex;justify-content:space-between;gap:15px;align-items:flex-end}.resulttop h2{font-size:38px;margin:5px 0}.muted{color:var(--muted)}.toolbar{display:flex;flex-wrap:wrap;gap:9px;margin:22px 0}.chip{background:#ffffff08;border:1px solid var(--line);color:#dce7f5;border-radius:99px;padding:8px 12px;cursor:pointer}.chip.on{border-color:var(--blue);color:#8dc8ff;background:#63adff10}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.car{background:#ffffff07;border:1px solid var(--line);border-radius:22px;overflow:hidden;position:relative}.visual{height:170px;background:linear-gradient(135deg,#203956,#0c1726);display:flex;align-items:center;justify-content:center;font-size:72px}.heart{position:absolute;right:12px;top:12px;border:1px solid #ffffff20;background:#07101dcc;color:white;border-radius:50%;width:39px;height:39px;cursor:pointer}.heart.on{color:#ff6f91}.carbody{padding:18px}.carname{font-size:22px;font-weight:900}.meta{color:var(--muted);font-size:13px;margin-top:4px}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.tag{font-size:11px;padding:6px 8px;background:#ffffff09;border-radius:8px;color:#b8c9dc}.scoreline{display:flex;justify-content:space-between;align-items:end}.score{font-size:32px;font-weight:950;color:#68b2ff}.matchbar{height:6px;background:#ffffff10;border-radius:9px;overflow:hidden;margin:8px 0 12px}.matchbar span{display:block;height:100%;background:#63adff}.why{font-size:13px;color:#aab9cb;line-height:1.45}.cardactions{display:flex;gap:8px;margin-top:14px}.cardactions button{flex:1;padding:9px;border-radius:10px;background:#ffffff09;border:1px solid var(--line);color:white;cursor:pointer}
+.compare{display:none;position:fixed;inset:0;background:#0009;z-index:50;padding:35px 15px;overflow:auto}.comparebox{max-width:900px;margin:auto;background:#0e1a2b;border:1px solid var(--line);border-radius:24px;padding:25px}.comparegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.compareitem{background:#ffffff07;padding:15px;border-radius:16px}.close{float:right;background:#ffffff10;color:white;border:0;border-radius:10px;padding:8px 12px;cursor:pointer}
+#detailsModal{background:#000a}
+#detailsModal .comparebox{max-width:820px}
+#next{min-width:145px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:#14253b;border:1px solid var(--line);padding:11px 16px;border-radius:12px;transition:.25s;z-index:80}.toast.show{opacity:1;transform:translateX(-50%)}
+@media(max-width:800px){.grid,.cards{grid-template-columns:1fr 1fr}.brandgrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){main{padding:25px 12px 60px}.panel{padding:20px}.grid,.cards,.comparegrid{grid-template-columns:1fr}.brandgrid{grid-template-columns:1fr 1fr}.q{font-size:25px}.hero h1{letter-spacing:-2px}.resulttop{align-items:flex-start;flex-direction:column}}
+</style>
+
+<style id="official-site-style">
+.official-site-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  margin-top:10px;
+  padding:11px 14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:linear-gradient(135deg,#63adff20,#ffffff08);
+  color:#fff;
+  text-decoration:none;
+  font-weight:800;
+  transition:transform .18s ease,background .18s ease,border-color .18s ease;
+}
+.official-site-btn:hover{
+  transform:translateY(-2px);
+  background:#63adff28;
+  border-color:#63adff66;
+}
+.official-site-note{
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:6px;
+}
+</style>
+
+
+<style id="multiselect-style">
+.multi-label{
+  display:inline-block;
+  vertical-align:middle;
+  margin-left:8px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.2px;
+  color:#9fceff;
+  background:#63adff18;
+  border:1px solid #63adff35;
+}
+.opt.sel{
+  border-color:#63adff;
+  background:linear-gradient(135deg,#63adff20,#ffffff0a);
+  box-shadow:0 0 0 1px #63adff22 inset,0 8px 24px #00000018;
+}
+.opt.sel:after{
+  content:"✓";
+  float:right;
+  font-weight:900;
+  color:#77baff;
+}
+</style>
+
+
+
+<style id="three-d-model-style">
+.model3d-btn{
+  flex:1;
+  padding:9px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#63adff20,#ffffff08);
+  border:1px solid #63adff55;
+  color:#fff;
+  cursor:pointer;
+  font-weight:800;
+}
+.model3d-btn:hover{background:#63adff30}
+.model3d-wrap{
+  margin-top:20px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  background:#07101d;
+}
+.model3d-head{
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.model3d-head strong{font-size:17px}
+.model3d-head span{font-size:11px;color:var(--muted)}
+.model3d-frame{
+  width:100%;
+  height:430px;
+  border:0;
+  display:block;
+}
+.model3d-empty{
+  padding:32px 18px;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.6;
+}
+@media(max-width:560px){
+  .model3d-frame{height:330px}
+}
+</style>
+
+
+<style id="model3d-card-fix">
+.cardactions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.cardactions button{
+  flex:1 1 0;
+  min-width:110px;
+}
+.cardactions .model3d-btn{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  padding:9px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#63adff20,#ffffff08);
+  border:1px solid #63adff55;
+  color:white;
+  cursor:pointer;
+  font-weight:800;
+}
+</style>
+
+
+<style id="model3d-final-polish">
+.model3d-btn.model3d-disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  background:#ffffff06;
+  border-color:#ffffff16;
+}
+.model3d-external{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:10px;
+  padding:10px 13px;
+  border-radius:11px;
+  text-decoration:none;
+  color:#dcecff;
+  background:#ffffff08;
+  border:1px solid #ffffff16;
+  font-weight:800;
+  font-size:13px;
+}
+.model3d-external:hover{
+  background:#ffffff10;
+}
+</style>
+
+</head>
+<body>
+<header><div class="logo">Auto<i>Match</i> <span style="font-size:10px;color:#7890aa">2.0</span></div><nav><button class="navbtn" onclick="showFavorites()">♥ Favorieten <b id="favCount">0</b></button><button class="navbtn" onclick="openCompare()">Vergelijken <b id="cmpCount">0</b></button></nav></header>
+<main>
+<section class="hero" id="hero"><span class="pill">AI-achtige persoonlijke autozoeker</span><h1>Welke auto past écht bij jou?</h1><p>Stel je voorkeuren in. AutoMatch vergelijkt ze met tientallen modellen en bouwt jouw persoonlijke shortlist.</p></section>
+
+<section class="panel" id="quiz">
+<div class="step active" data-i="0"><div class="eyebrow">1 / 8 · Merken</div><div class="q">Welke merken mogen we meenemen?</div><div class="grid brandgrid" id="brands"></div><div class="small" style="margin-top:14px">Je kunt meerdere merken kiezen. Geen keuze = alle merken.</div></div>
+<div class="step" data-i="1"><div class="eyebrow">2 / 8 · Budget</div><div class="q">Wat is je maximale budget?</div><div class="rangebox"><div class="rangevalue" id="budgetOut">€40.000</div><input class="range" id="budget" type="range" min="15000" max="150000" step="2500" value="40000"><div class="rangehint"><span>€15.000</span><span>€150.000+</span></div></div></div>
+<div class="step" data-i="2"><div class="eyebrow">3 / 8 · Aandrijving</div><div class="q">Hoe wil je rijden? <span class="multi-label">Meerdere keuzes mogelijk</span></div><div class="grid" data-key="fuel"><button class="opt" data-v="electric"><strong>⚡ Elektrisch</strong><span class="small">Stil, modern en emissievrij tijdens het rijden</span></button><button class="opt" data-v="hybrid"><strong>♻️ Hybride</strong><span class="small">Elektrisch gecombineerd met verbrandingsmotor</span></button><button class="opt" data-v="petrol"><strong>⛽ Benzine</strong></button><button class="opt" data-v="diesel"><strong>🛣️ Diesel</strong></button><button class="opt" data-v="any"><strong>Maakt niet uit</strong></button></div></div>
+<div class="step" data-i="3"><div class="eyebrow">4 / 8 · Gebruik</div><div class="q">Waar rijdt jouw auto het meest?</div><div class="grid" data-key="use"><button class="opt" data-v="city"><strong>🏙️ Vooral stad</strong></button><button class="opt" data-v="highway"><strong>🛣️ Veel snelweg</strong></button><button class="opt" data-v="mixed"><strong>🔄 Gemengd</strong></button><button class="opt" data-v="family"><strong>👨‍👩‍👧 Gezin</strong></button></div></div>
+<div class="step" data-i="4"><div class="eyebrow">5 / 8 · Carrosserie</div><div class="q">Welke vormen vind je mooi? <span class="multi-label">Meerdere keuzes mogelijk</span></div><div class="grid" data-key="type"><button class="opt" data-v="suv"><strong>🚙 SUV</strong><span class="small">Hoger, ruim en veelzijdig</span></button><button class="opt" data-v="hatch"><strong>🚗 Hatchback</strong></button><button class="opt" data-v="sedan"><strong>🏎️ Sedan</strong></button><button class="opt" data-v="wagon"><strong>🧳 Stationwagen</strong></button><button class="opt" data-v="coupe"><strong>🏁 Coupé</strong></button></div></div>
+<div class="step" data-i="5"><div class="eyebrow">6 / 8 · Prioriteiten</div><div class="q">Wat moet jouw auto vooral goed kunnen? <span class="multi-label">Meerdere keuzes mogelijk</span></div><div class="grid" data-key="priority"><button class="opt" data-v="performance"><strong>🏁 Prestaties</strong></button><button class="opt" data-v="comfort"><strong>🛋️ Comfort</strong></button><button class="opt" data-v="economy"><strong>💶 Lage gebruikskosten</strong></button><button class="opt" data-v="tech"><strong>📱 Technologie</strong></button><button class="opt" data-v="space"><strong>📦 Ruimte</strong></button></div></div>
+<div class="step" data-i="6"><div class="eyebrow">7 / 8 · Personen</div><div class="q">Hoeveel mensen moeten meestal mee?</div><div class="grid" data-key="people"><button class="opt" data-v="2"><strong>1–2 personen</strong></button><button class="opt" data-v="4"><strong>3–4 personen</strong></button><button class="opt" data-v="5"><strong>5 personen</strong></button><button class="opt" data-v="7"><strong>6–7+ personen</strong></button></div></div>
+<div class="step" data-i="7"><div class="eyebrow">8 / 8 · Rijgevoel</div><div class="q">Hoe wil je dat de auto aanvoelt? <span class="multi-label">Meerdere keuzes mogelijk</span></div><div class="grid" data-key="feel"><button class="opt" data-v="sport"><strong>🔥 Sportief</strong></button><button class="opt" data-v="relaxed"><strong>☁️ Relaxed</strong></button><button class="opt" data-v="practical"><strong>🧠 Praktisch</strong></button><button class="opt" data-v="premium"><strong>✨ Premium</strong></button></div></div>
+<div class="actions"><button class="btn secondary" id="back">← Terug</button><button class="btn primary" id="next">Volgende →</button></div>
+</section>
+
+<section class="panel results" id="results">
+<div class="resulttop"><div><div class="eyebrow">Jouw persoonlijke shortlist</div><h2>Dit zijn jouw matches.</h2><div class="muted" id="summary"></div><div id="resultCountNote" class="muted" style="margin-top:7px;font-size:12px">Alleen relevante matches worden getoond.</div></div><button class="btn secondary" onclick="restart()">Opnieuw zoeken</button></div>
+<div class="toolbar"><button class="chip on" data-sort="score">Beste match</button><button class="chip" data-sort="price">Goedkoopste</button><button class="chip" data-sort="performance">Sportiefste</button><button class="chip" onclick="showFavorites()">♥ Favorieten</button></div>
+<div class="cards" id="cards"></div>
+</section>
+</main>
+<div class="compare" id="detailsModal">
+  <div class="comparebox">
+    <button class="close" onclick="closeDetails()">Sluiten</button>
+    <div id="detailsContent"></div>
+  </div>
+</div>
+<div class="compare" id="compare"><div class="comparebox"><button class="close" onclick="closeCompare()">Sluiten</button><h2>Auto's vergelijken</h2><p class="muted">Kies maximaal 3 auto's via de kaarten.</p><div id="compareContent"></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const officialSites = {"BMW": "https://www.bmw.be/nl/all-models.html", "Audi": "https://www.audi.be/", "Mercedes-Benz": "https://www.mercedes-benz.be/nl_BE/passengercars/models.html", "Volkswagen": "https://www.volkswagen.be/nl/modellen.html", "Tesla": "https://www.tesla.com/nl_be", "Toyota": "https://www.toyota.be/", "Porsche": "https://www.porsche.com/belgium/nl/", "Ford": "https://www.ford.be/", "Volvo": "https://www.volvocars.com/be/", "Hyundai": "https://www.hyundai.com/be/nl", "Kia": "https://www.kia.com/be/", "Škoda": "https://www.skoda.be/"};
+function officialButton(brand){
+  const url = officialSites[brand];
+  if(!url) return "";
+  return `<a class="official-site-btn" href="${url}" target="_blank" rel="noopener noreferrer">🌐 Bekijk bij ${brand}</a>
+          <div class="official-site-note">Officiële website van ${brand} België</div>`;
+}
+
+
+const carPhotos = {"BMW|1 Serie": "2025 BMW 1 Series.jpg", "BMW|3 Serie": "BMW3Series2025.jpg", "BMW|X3": "2025 BMW X3 30 xDrive - 01.jpg", "BMW|i4": "2021 BMW i4 eDrive 40 M Sport.jpg", "Audi|A3": "Audi A3 Sportback (8Y, Facelift) – f 03102025.jpg", "Audi|A5": "Audi A5 B10 DSC 7927.jpg", "Audi|Q5": "Audi Q5 GU DSC 8464.jpg", "Audi|Q4 e-tron": "Audi Q4 E-Tron.jpg", "Mercedes-Benz|A-Klasse": "Mercedes-Benz A-Class.jpg", "Mercedes-Benz|C-Klasse": "2025 Mercedes-Benz C-Class - 01.jpg", "Mercedes-Benz|GLA": "Mercedes-Benz GLA 180 AMG Line (H 247, Facelift) – f 05072025.jpg", "Mercedes-Benz|EQE": "Mercedes-Benz EQE 350+ SUV AMG Line (X 294) – f 13072025.jpg", "Volkswagen|Golf": "Volkswagen Golf VIII R (2025) (54872107871).jpg", "Volkswagen|Tiguan": "2025 Volkswagen Tiguan.jpg", "Volkswagen|ID.4": "Volkswagen ID.4.jpg", "Tesla|Model 3": "Tesla Model 3 - 25 July 2025.jpg", "Tesla|Model Y": "Tesla Model Y (2025) DSC 8297.jpg", "Toyota|Yaris": "Toyota Yaris (IV) – f 13072025.jpg", "Toyota|Corolla Touring Sports": "Toyota Corolla Touring Sports 123038.jpg", "Toyota|RAV4": "2025 Toyota RAV4 au SIAM 2025.jpg", "Porsche|718 Cayman": "Porsche 718 Cayman.jpg", "Porsche|Macan": "Porsche Macan 4 (2025) (54721601902).jpg", "Ford|Mustang": "Ford Mustang black.jpg", "Ford|Kuga": "Ford Kuga 1.5 EcoBoost (2025) (54734030294).jpg", "Volvo|XC60": "Volvo XC60 II 2025 facelift 001.jpg", "Volvo|EX30": "‘25 Volvo EX30.jpeg", "Kia|EV6": "Kia EV6 GT-line (Facelift) – f 27072025.jpg", "Hyundai|Ioniq 5": "Hyundai ioniq 5 N 2025.jpg", "Škoda|Octavia": "Skoda Octavia Combi Selection (IV, Facelift) – f 13072025.jpg", "Škoda|Kodiaq": "Skoda Kodiaq 1.5 TSI iV Selection (II) – f 01032025.jpg"};
+
+
+const car3DModels = {"BMW|3 Serie": "93fce305fc644254a20f01fda89abe97", "BMW|X3": "5142078aebec406688e19401985050ec", "Audi|A3": "5e47cd3377d0480498e70d1beeffcdf3", "Mercedes-Benz|A-Klasse": "37f1c5c3bf574fc591c8448392d65a3f", "Volkswagen|Golf": "e2acc28543d44533b5116d3eb59e9b4f", "Tesla|Model 3": "98e7bd5892464640baa9cf6afcd60c2c", "Volvo|EX30": "c5be588ea33d44cc8d2690ffdba389a4"};
+const car3DDirect = {"BMW|3 Serie": "https://sketchfab.com/3d-models/93fce305fc644254a20f01fda89abe97", "BMW|X3": "https://sketchfab.com/3d-models/5142078aebec406688e19401985050ec", "Audi|A3": "https://sketchfab.com/3d-models/5e47cd3377d0480498e70d1beeffcdf3", "Mercedes-Benz|A-Klasse": "https://sketchfab.com/3d-models/37f1c5c3bf574fc591c8448392d65a3f", "Volkswagen|Golf": "https://sketchfab.com/3d-models/e2acc28543d44533b5116d3eb59e9b4f", "Tesla|Model 3": "https://sketchfab.com/3d-models/98e7bd5892464640baa9cf6afcd60c2c", "Volvo|EX30": "https://sketchfab.com/3d-models/c5be588ea33d44cc8d2690ffdba389a4"};
+function direct3DUrl(brand,model){return car3DDirect[brand+"|"+model]||"";}
+function model3DUrl(brand, model){
+  const id = car3DModels[brand + "|" + model];
+  return id ? "https://sketchfab.com/models/" + id + "/embed?autostart=1&ui_theme=dark&dnt=1" : "";
+}
+function has3DModel(brand, model){
+  return !!car3DModels[brand + "|" + model];
+}
+
+const cars=[
+["BMW","1 Serie",36000,"petrol","hatch",5,["city","mixed"],["economy","tech"],["sport","practical"],"🚗"],
+["BMW","3 Serie",52000,"hybrid","sedan",5,["highway","mixed"],["performance","comfort"],["sport","premium"],"🏎️"],
+["BMW","X3",62000,"hybrid","suv",5,["family","mixed","highway"],["comfort","space"],["premium","practical"],"🚙"],
+["BMW","i4",61000,"electric","sedan",5,["highway","mixed"],["performance","tech"],["sport","premium"],"🏎️"],
+["Audi","A3",39000,"petrol","hatch",5,["city","mixed"],["tech","economy"],["practical","sport"],"🚗"],
+["Audi","A5",57000,"petrol","sedan",5,["highway","mixed"],["comfort","performance"],["premium","sport"],"🏎️"],
+["Audi","Q5",65000,"hybrid","suv",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚙"],
+["Audi","Q4 e-tron",56000,"electric","suv",5,["family","mixed"],["tech","space"],["premium","relaxed"],"🚙"],
+["Mercedes-Benz","A-Klasse",41000,"petrol","hatch",5,["city","mixed"],["tech","comfort"],["premium","sport"],"🚗"],
+["Mercedes-Benz","C-Klasse",57000,"hybrid","sedan",5,["highway","mixed"],["comfort","tech"],["premium","relaxed"],"🏎️"],
+["Mercedes-Benz","GLA",51000,"petrol","suv",5,["city","mixed"],["comfort","tech"],["premium","practical"],"🚙"],
+["Mercedes-Benz","EQE",79000,"electric","sedan",5,["highway"],["comfort","tech"],["premium","relaxed"],"🏎️"],
+["Volkswagen","Golf",34000,"petrol","hatch",5,["city","mixed","highway"],["economy","tech"],["practical","sport"],"🚗"],
+["Volkswagen","Tiguan",47000,"hybrid","suv",5,["family","mixed"],["space","comfort"],["practical","relaxed"],"🚙"],
+["Volkswagen","ID.4",49000,"electric","suv",5,["family","mixed"],["economy","space","tech"],["practical","relaxed"],"🚙"],
+["Tesla","Model 3",45000,"electric","sedan",5,["city","highway","mixed"],["tech","performance","economy"],["sport","premium"],"🏎️"],
+["Tesla","Model Y",53000,"electric","suv",5,["family","highway","mixed"],["space","tech"],["practical","premium"],"🚙"],
+["Toyota","Yaris",26000,"hybrid","hatch",5,["city","mixed"],["economy"],["practical"],"🚗"],
+["Toyota","Corolla Touring Sports",35000,"hybrid","wagon",5,["family","mixed","highway"],["economy","space"],["practical","relaxed"],"🚘"],
+["Toyota","RAV4",49000,"hybrid","suv",5,["family","mixed"],["economy","space"],["practical","relaxed"],"🚙"],
+["Porsche","718 Cayman",88000,"petrol","coupe",2,["highway","mixed"],["performance"],["sport","premium"],"🏁"],
+["Porsche","Macan",85000,"petrol","suv",5,["highway","family"],["performance","comfort"],["premium","sport"],"🚙"],
+["Ford","Mustang",62000,"petrol","coupe",4,["highway","mixed"],["performance"],["sport"],"🏁"],
+["Ford","Kuga",41000,"hybrid","suv",5,["family","mixed"],["economy","space"],["practical"],"🚙"],
+["Volvo","XC60",59000,"hybrid","suv",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚙"],
+["Volvo","EX30",39000,"electric","suv",5,["city","mixed"],["tech","economy"],["practical","premium"],"🚙"],
+["Kia","EV6",49000,"electric","suv",5,["mixed","highway"],["tech","performance"],["sport","premium"],"🚙"],
+["Hyundai","Ioniq 5",48000,"electric","suv",5,["family","mixed"],["tech","space","economy"],["relaxed","premium"],"🚙"],
+["Škoda","Octavia",36000,"petrol","wagon",5,["family","highway","mixed"],["space","economy"],["practical","relaxed"],"🚘"],
+["Škoda","Kodiaq",49000,"hybrid","suv",7,["family","highway"],["space","comfort"],["practical","relaxed"],"🚙"],
+["BMW","2 Active Tourer",41450,"diesel","hatch",5,["city","mixed","family"],["economy","space"],["practical","premium"],"🚗"],
+["BMW","2 Gran Coupé",43050,"petrol","sedan",5,["city","mixed","highway"],["tech","performance"],["sport","premium"],"🏎️"],
+["BMW","2 Coupé",53800,"petrol","coupe",4,["highway","mixed"],["performance"],["sport","premium"],"🏁"],
+["BMW","4 Serie",59000,"hybrid","coupe",4,["highway","mixed"],["performance","tech"],["sport","premium"],"🏎️"],
+["BMW","5 Serie",68000,"hybrid","sedan",5,["highway","mixed"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["BMW","7 Serie",115000,"hybrid","sedan",5,["highway"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["BMW","iX",86800,"electric","suv",5,["highway","mixed"],["tech","comfort"],["premium","relaxed"],"🚙"],
+["BMW","iX1",54000,"electric","suv",5,["city","mixed","family"],["economy","tech","space"],["practical","premium"],"🚙"],
+["BMW","iX2",57000,"electric","suv",5,["city","mixed","highway"],["tech","performance"],["premium","sport"],"🚙"],
+["BMW","X1",50000,"hybrid","suv",5,["family","mixed"],["space","comfort"],["practical","premium"],"🚙"],
+["BMW","X2",54000,"hybrid","suv",5,["mixed","highway"],["performance","tech"],["sport","premium"],"🚙"],
+["BMW","X5",85000,"hybrid","suv",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚙"],
+["BMW","X6",92000,"hybrid","suv",5,["highway","mixed"],["performance","comfort"],["sport","premium"],"🚙"],
+["BMW","Z4",62000,"petrol","coupe",2,["highway","mixed"],["performance"],["sport","premium"],"🏁"],
+["Audi","A1",32000,"petrol","hatch",5,["city","mixed"],["economy","tech"],["practical","sport"],"🚗"],
+["Audi","A2 e-tron",42000,"electric","hatch",5,["city","mixed"],["economy","tech"],["practical","premium"],"🚗"],
+["Audi","Q2",36000,"petrol","suv",5,["city","mixed"],["economy","tech"],["practical","sport"],"🚙"],
+["Audi","Q3",48000,"hybrid","suv",5,["family","mixed"],["comfort","tech","space"],["premium","relaxed"],"🚙"],
+["Audi","A6 e-tron",72000,"electric","sedan",5,["highway","mixed"],["tech","comfort"],["premium","relaxed"],"🏎️"],
+["Audi","A6",69000,"hybrid","sedan",5,["highway","mixed"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["Audi","Q6 e-tron",74000,"electric","suv",5,["family","highway"],["tech","space"],["premium","relaxed"],"🚙"],
+["Audi","Q7",80000,"diesel","suv",7,["family","highway"],["comfort","space"],["premium","relaxed"],"🚙"],
+["Audi","Q8",90000,"hybrid","suv",5,["highway","mixed"],["comfort","performance"],["premium","sport"],"🚙"],
+["Audi","Q9",105000,"hybrid","suv",7,["family","highway"],["space","comfort"],["premium","relaxed"],"🚙"],
+["Audi","e-tron GT",110000,"electric","coupe",5,["highway","mixed"],["performance","tech"],["sport","premium"],"🏁"],
+["Mercedes-Benz","CLA",44770,"petrol","sedan",5,["city","mixed","highway"],["economy","tech"],["premium","sport"],"🏎️"],
+["Mercedes-Benz","CLA Electric",49610,"electric","sedan",5,["city","mixed","highway"],["tech","economy"],["premium","sport"],"🏎️"],
+["Mercedes-Benz","E-Klasse",72000,"hybrid","sedan",5,["highway","mixed"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["Mercedes-Benz","S-Klasse",125000,"hybrid","sedan",5,["highway"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["Mercedes-Benz","EQA",53000,"electric","suv",5,["city","mixed"],["economy","tech"],["premium","practical"],"🚙"],
+["Mercedes-Benz","EQB",59000,"electric","suv",7,["family","mixed"],["space","tech"],["premium","practical"],"🚙"],
+["Mercedes-Benz","GLB",56000,"hybrid","suv",7,["family","mixed"],["space","comfort"],["practical","premium"],"🚙"],
+["Mercedes-Benz","GLC",70000,"hybrid","suv",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚙"],
+["Mercedes-Benz","GLE",86000,"hybrid","suv",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚙"],
+["Mercedes-Benz","EQS",120000,"electric","sedan",5,["highway"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["Mercedes-Benz","G-Klasse",150000,"hybrid","suv",5,["family","highway"],["performance","comfort"],["premium","sport"],"🚙"],
+["Volkswagen","Polo",24000,"petrol","hatch",5,["city","mixed"],["economy"],["practical"],"🚗"],
+["Volkswagen","T-Cross",30000,"petrol","suv",5,["city","mixed"],["economy","space"],["practical","relaxed"],"🚙"],
+["Volkswagen","T-Roc",34000,"petrol","suv",5,["city","mixed","highway"],["tech","space"],["practical","sport"],"🚙"],
+["Volkswagen","Passat",46000,"hybrid","wagon",5,["family","highway","mixed"],["comfort","space"],["practical","relaxed"],"🚘"],
+["Volkswagen","ID.3",39000,"electric","hatch",5,["city","mixed"],["economy","tech"],["practical"],"🚗"],
+["Volkswagen","ID.5",53000,"electric","suv",5,["mixed","highway"],["tech","comfort"],["premium","relaxed"],"🚙"],
+["Volkswagen","ID.7",57000,"electric","sedan",5,["highway","mixed"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["Volkswagen","Touran",42000,"petrol","hatch",7,["family","mixed"],["space","comfort"],["practical","relaxed"],"🚐"],
+["Tesla","Model S",90000,"electric","sedan",5,["highway","mixed"],["performance","tech"],["premium","sport"],"🏎️"],
+["Tesla","Model X",100000,"electric","suv",7,["family","highway"],["space","tech"],["premium","practical"],"🚙"],
+["Toyota","Aygo X",23000,"hybrid","hatch",4,["city","mixed"],["economy"],["practical"],"🚗"],
+["Toyota","Yaris Cross",31000,"hybrid","suv",5,["city","mixed","family"],["economy","space"],["practical"],"🚙"],
+["Toyota","Corolla",30000,"hybrid","hatch",5,["city","mixed","highway"],["economy","tech"],["practical"],"🚗"],
+["Toyota","C-HR",37000,"hybrid","suv",5,["city","mixed"],["economy","tech"],["sport","premium"],"🚙"],
+["Toyota","bZ4X",45000,"electric","suv",5,["mixed","highway"],["economy","tech"],["practical","relaxed"],"🚙"],
+["Toyota","Prius",45000,"hybrid","hatch",5,["city","mixed","highway"],["economy","tech"],["practical"],"🚗"],
+["Toyota","Land Cruiser",70000,"diesel","suv",7,["family","highway"],["space","comfort"],["practical","premium"],"🚙"],
+["Toyota","Highlander",65000,"hybrid","suv",7,["family","highway"],["space","comfort"],["relaxed","premium"],"🚙"],
+["Porsche","718 Boxster",90000,"petrol","coupe",2,["highway","mixed"],["performance"],["sport","premium"],"🏁"],
+["Porsche","911 Carrera",135000,"petrol","coupe",4,["highway","mixed"],["performance"],["sport","premium"],"🏁"],
+["Porsche","Taycan",115000,"electric","sedan",4,["highway","mixed"],["performance","tech"],["sport","premium"],"🏎️"],
+["Porsche","Panamera",120000,"hybrid","sedan",4,["highway"],["performance","comfort"],["sport","premium"],"🏎️"],
+["Porsche","Cayenne",95000,"hybrid","suv",5,["family","highway"],["performance","comfort"],["premium","sport"],"🚙"],
+["Ford","Puma",30000,"hybrid","suv",5,["city","mixed"],["economy","space"],["practical","sport"],"🚙"],
+["Ford","Puma Gen-E",36000,"electric","suv",5,["city","mixed"],["economy","tech"],["practical","sport"],"🚙"],
+["Ford","Explorer",48000,"electric","suv",5,["family","highway"],["space","tech"],["practical","premium"],"🚙"],
+["Ford","Capri",47000,"electric","suv",5,["mixed","highway"],["tech","performance"],["sport","premium"],"🚙"],
+["Ford","Mustang Mach-E",57000,"electric","suv",5,["highway","mixed"],["performance","tech"],["sport","premium"],"🚙"],
+["Ford","Ranger",48000,"diesel","suv",5,["family","highway"],["space","performance"],["practical"],"🚙"],
+["Ford","Ranger PHEV",59000,"hybrid","suv",5,["family","mixed"],["space","economy"],["practical"],"🚙"],
+["Volvo","EC40",49000,"electric","suv",5,["city","mixed","highway"],["tech","economy"],["premium","practical"],"🚙"],
+["Volvo","EX40",50000,"electric","suv",5,["city","mixed","family"],["tech","economy"],["premium","practical"],"🚙"],
+["Volvo","EX60",65000,"electric","suv",5,["family","highway"],["tech","comfort"],["premium","relaxed"],"🚙"],
+["Volvo","ES90",72000,"electric","sedan",5,["highway","mixed"],["comfort","tech"],["premium","relaxed"],"🚘"],
+["Volvo","XC40",45000,"hybrid","suv",5,["city","mixed"],["comfort","tech"],["premium","practical"],"🚙"],
+["Volvo","XC90",80000,"hybrid","suv",7,["family","highway"],["space","comfort"],["premium","relaxed"],"🚙"],
+["Volvo","V60",50000,"hybrid","wagon",5,["family","highway","mixed"],["comfort","space"],["premium","relaxed"],"🚘"],
+["Volvo","V90",65000,"hybrid","wagon",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚘"],
+["Kia","Picanto",19000,"petrol","hatch",5,["city"],["economy"],["practical"],"🚗"],
+["Kia","Stonic",26000,"petrol","suv",5,["city","mixed"],["economy","tech"],["practical"],"🚙"],
+["Kia","Ceed",27000,"petrol","hatch",5,["city","mixed","highway"],["economy","tech"],["practical"],"🚗"],
+["Kia","XCeed",30000,"hybrid","suv",5,["city","mixed"],["economy","tech"],["practical","sport"],"🚙"],
+["Kia","Sportage",37000,"hybrid","suv",5,["family","mixed"],["space","comfort"],["practical","premium"],"🚙"],
+["Kia","Niro",39000,"hybrid","suv",5,["city","mixed"],["economy","tech"],["practical","premium"],"🚙"],
+["Kia","EV3",39000,"electric","suv",5,["city","mixed","highway"],["economy","tech"],["practical","premium"],"🚙"],
+["Kia","EV4",42000,"electric","sedan",5,["city","mixed","highway"],["economy","tech"],["premium","sport"],"🚘"],
+["Kia","EV9",70000,"electric","suv",7,["family","highway"],["space","tech"],["premium","relaxed"],"🚙"],
+["Hyundai","INSTER",23349,"electric","hatch",4,["city","mixed"],["economy","tech"],["practical"],"🚗"],
+["Hyundai","KONA Electric",31349,"electric","suv",5,["city","mixed"],["economy","tech"],["practical"],"🚙"],
+["Hyundai","IONIQ 3",29995,"electric","hatch",5,["city","mixed"],["economy","tech"],["practical","sport"],"🚗"],
+["Hyundai","IONIQ 6",43199,"electric","sedan",5,["highway","mixed"],["economy","tech"],["premium","sport"],"🚘"],
+["Hyundai","IONIQ 6 N",70000,"electric","sedan",5,["highway","mixed"],["performance","tech"],["sport","premium"],"🏎️"],
+["Hyundai","IONIQ 9",70000,"electric","suv",7,["family","highway"],["space","tech"],["premium","relaxed"],"🚙"],
+["Hyundai","TUCSON",32049,"hybrid","suv",5,["family","mixed"],["space","comfort"],["practical","premium"],"🚙"],
+["Hyundai","TUCSON PHEV",42000,"hybrid","suv",5,["family","mixed","highway"],["economy","space"],["practical","premium"],"🚙"],
+["Hyundai","SANTA FE",56295,"hybrid","suv",7,["family","highway"],["space","comfort"],["premium","relaxed"],"🚙"],
+["Hyundai","SANTA FE PHEV",62000,"hybrid","suv",7,["family","highway"],["space","comfort"],["premium","relaxed"],"🚙"],
+["Hyundai","NEXO",60000,"electric","suv",5,["city","highway"],["tech","comfort"],["premium","relaxed"],"🚙"],
+["Hyundai","STARIA Electric",60000,"electric","suv",7,["family","mixed"],["space","tech"],["practical","relaxed"],"🚐"],
+["Škoda","Fabia",23000,"petrol","hatch",5,["city","mixed"],["economy"],["practical"],"🚗"],
+["Škoda","Scala",25000,"petrol","hatch",5,["city","mixed","highway"],["economy","space"],["practical"],"🚗"],
+["Škoda","Kamiq",28000,"petrol","suv",5,["city","mixed"],["economy","tech"],["practical"],"🚙"],
+["Škoda","Karoq",34000,"hybrid","suv",5,["family","mixed"],["space","comfort"],["practical","relaxed"],"🚙"],
+["Škoda","Superb",47000,"hybrid","sedan",5,["family","highway"],["comfort","space"],["premium","relaxed"],"🚘"],
+["Škoda","Superb Combi",49000,"hybrid","wagon",5,["family","highway","mixed"],["space","comfort"],["practical","relaxed"],"🚘"],
+["Škoda","Elroq",38000,"electric","suv",5,["city","mixed"],["economy","tech","space"],["practical","premium"],"🚙"],
+["Škoda","Enyaq",45000,"electric","suv",5,["family","highway","mixed"],["space","economy","tech"],["practical","premium"],"🚙"]
+];
+const brandList=[...new Set(cars.map(c=>c[0]))], answers={brands:[],fuel:[],type:[],priority:[],feel:[]}, favorites=new Set(), compare=new Set();
+let step=0,results=[],sort="score";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+brandList.forEach(b=>{
+  let x=document.createElement("button");
+  x.className="opt brand"; x.textContent=b;
+  x.onclick=()=>{
+    x.classList.toggle("sel");
+    answers.brands=$$("#brands .sel").map(y=>y.textContent);
+    renderStep();
+  };
+  $("#brands").append(x);
+});
+$("#budget").oninput=e=>$("#budgetOut").textContent="€"+(+e.target.value).toLocaleString("nl-NL");
+const multiKeys=new Set(["fuel","type","priority","feel"]);
+$$(".grid[data-key]").forEach(g=>g.onclick=e=>{
+  let o=e.target.closest(".opt"); if(!o)return;
+  const key=g.dataset.key;
+
+  if(multiKeys.has(key)){
+    o.classList.toggle("sel");
+    answers[key]=Array.from(g.querySelectorAll(".opt.sel")).map(x=>x.dataset.v);
+  }else{
+    g.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+    o.classList.add("sel");
+    answers[key]=o.dataset.v;
+  }
+
+  // Bij elektrisch mag "Bereik" als extra prioriteit worden gekozen.
+  if(key==="fuel"){
+    const priorityGrid=document.querySelector('.grid[data-key="priority"]');
+    const electricSelected=Array.isArray(answers.fuel)
+      ? answers.fuel.includes("electric")
+      : answers.fuel==="electric";
+    if(priorityGrid){
+      let rangeOpt=priorityGrid.querySelector('.opt[data-v="range"]');
+      if(electricSelected && !rangeOpt){
+        rangeOpt=document.createElement("button");
+        rangeOpt.className="opt";
+        rangeOpt.dataset.v="range";
+        rangeOpt.innerHTML="<strong>🔋 Bereik</strong><span class='small'>Hoe ver je elektrisch wilt kunnen rijden</span>";
+        priorityGrid.appendChild(rangeOpt);
+      }else if(!electricSelected && rangeOpt){
+        rangeOpt.remove();
+        if(Array.isArray(answers.priority)){
+          answers.priority=answers.priority.filter(v=>v!=="range");
+        }
+      }
+    }
+  }
+
+  renderStep();
+});
+function canNext(){
+  if(step===0) return true;
+  if(step===1) return true;
+  const key=$$(".step")[step].querySelector("[data-key]")?.dataset.key;
+  const value=answers[key];
+  return Array.isArray(value) ? value.length>0 : !!value;
+}
+function renderStep(){
+  $$(".step").forEach((x,i)=>x.classList.toggle("active",i===step));
+  $$(".step").forEach(x=>{
+    const key=x.querySelector("[data-key]")?.dataset.key;
+    if(!key)return;
+    const selected=answers[key];
+    x.querySelectorAll(".opt").forEach(o=>{
+      o.classList.toggle("sel",Array.isArray(selected)?selected.includes(o.dataset.v):selected===o.dataset.v);
+    });
+  });
+  $("#back").style.visibility=step?"visible":"hidden";
+  $("#next").textContent=step===7?"Vind mijn auto's →":"Volgende →";
+  $("#next").disabled=!canNext();
+}
+$("#next").onclick=()=>{if(step<7){step++;renderStep()}else{buildResults()}};$("#back").onclick=()=>{if(step){step--;renderStep()}};
+function score(c){
+  let s=0;
+  const budget=+$("#budget").value;
+  const selectedFuel=Array.isArray(answers.fuel)?answers.fuel:[answers.fuel].filter(Boolean);
+  const selectedType=Array.isArray(answers.type)?answers.type:[answers.type].filter(Boolean);
+  const selectedPriority=Array.isArray(answers.priority)?answers.priority:[answers.priority].filter(Boolean);
+  const selectedFeel=Array.isArray(answers.feel)?answers.feel:[answers.feel].filter(Boolean);
+
+  if(c[2] <= budget){
+    s += 22;
+    if(budget-c[2] <= Math.max(5000,budget*0.08)) s += 4;
+  }else{
+    const over=c[2]-budget;
+    if(over > budget*0.15) return -1;
+    s += Math.max(0,10-Math.round(over/3000));
+  }
+
+  if(selectedFuel.length && !selectedFuel.includes("any")){
+    if(!selectedFuel.includes(c[3])) return -1;
+    s += 20;
+  }else{
+    s += 10;
+  }
+
+  if(answers.use){
+    if(c[6].includes(answers.use)) s += 14;
+    else s -= 4;
+  }
+
+  if(selectedType.length){
+    if(!selectedType.includes(c[4])) return -1;
+    s += 16;
+  }else{
+    s += 8;
+  }
+
+  if(selectedPriority.length){
+    const normalPriority=selectedPriority.filter(x=>x!=="range");
+    const hits=normalPriority.filter(x=>c[7].includes(x)).length;
+    s += Math.min(15,hits*5);
+    if(selectedPriority.includes("range")){
+      if(c[3]==="electric") s += 7;
+      else s -= 4;
+    }
+  }
+
+  if(answers.people){
+    const needed=+answers.people;
+    if(c[5] < needed) return -1;
+    s += c[5]===needed ? 7 : 4;
+  }
+
+  if(selectedFeel.length){
+    const hits=selectedFeel.filter(x=>c[8].includes(x)).length;
+    if(hits===0) s -= 5;
+    else s += Math.min(10,hits*5);
+  }
+
+  return Math.max(0,Math.min(100,Math.round(s)));
+}
+
+function buildResults(){
+  const budget=+$("#budget").value;
+
+  let ranked=cars
+    .filter(c=>!answers.brands.length||answers.brands.includes(c[0]))
+    .map(c=>({c,s:score(c)}))
+    .filter(x=>x.s>=0)
+    .sort((a,b)=>b.s-a.s);
+
+  const desiredCount=12;
+  let filtered=ranked.filter(x=>x.s>=58);
+  if(filtered.length<6) filtered=ranked.filter(x=>x.s>=52);
+  if(filtered.length<4) filtered=ranked.slice(0,Math.min(4,ranked.length));
+  results=filtered.slice(0,desiredCount);
+
+  $("#hero").style.display="none";
+  $("#quiz").style.display="none";
+  $("#results").classList.add("show");
+
+  const multiCount=["fuel","type","priority","feel"]
+    .reduce((n,k)=>n+((Array.isArray(answers[k])&&answers[k].length>1)?1:0),0);
+
+  $("#summary").textContent=
+    `${results.length} beste matches uit ${cars.length} modellen · budget tot €${budget.toLocaleString("nl-NL")} · `
+    + `${multiCount ? "meerdere voorkeuren meegenomen · " : ""}laag passende modellen zijn weggefilterd.`;
+
+  renderResults();
+}
+function renderResults(){
+let arr=[...results];if(sort==="price")arr.sort((a,b)=>a.c[2]-b.c[2]);if(sort==="performance")arr.sort((a,b)=>((b.c[7].includes("performance")?12:0)+b.s)-((a.c[7].includes("performance")?12:0)+a.s));
+$("#cards").innerHTML=arr.map(({c,s},i)=>`<article class="car"><button class="heart ${favorites.has(c[0]+c[1])?"on":""}" onclick="toggleFav('${c[0]}|${c[1]}')">${favorites.has(c[0]+c[1])?"♥":"♡"}</button><div class="visual">${c[9]}</div><div class="carbody"><div class="carname">${c[0]} ${c[1]}</div><div class="meta">Vanaf ± €${c[2].toLocaleString("nl-NL")} · ${c[3]} · ${c[4]}</div><div class="tags"><span class="tag">${c[5]} zitplaatsen</span>${c[7].slice(0,2).map(x=>`<span class="tag">${x}</span>`).join("")}</div><div class="scoreline"><span class="muted">Persoonlijke match</span><span class="score">${s}%</span></div><div class="matchbar"><span style="width:${s}%"></span></div><div class="why">${why(c)}</div><div class="cardactions">
+  <button onclick="toggleCompare('${c[0]}|${c[1]}')">${compare.has(c[0]+c[1])?"✓ Geselecteerd":"⚖ Vergelijk"}</button>
+  <button onclick="details('${c[0]}|${c[1]}')">Meer info</button>
+  ${has3DModel(c[0],c[1])
+    ? `<button class="model3d-btn" onclick="details('${c[0]}|${c[1]}')">🧊 Bekijk 3D</button>`
+    : `<button class="model3d-btn model3d-disabled" disabled title="Voor dit model is nog geen exact 3D-model gekoppeld">🧊 3D nog niet beschikbaar</button>`}
+</div>${officialButton(c[0])}</div></article>`).join("");
+$("#cmpCount").textContent=compare.size;$("#favCount").textContent=favorites.size;
+}
+function why(c){
+  let bits=[];
+  const fuel=Array.isArray(answers.fuel)?answers.fuel:[answers.fuel].filter(Boolean);
+  const type=Array.isArray(answers.type)?answers.type:[answers.type].filter(Boolean);
+  const priority=Array.isArray(answers.priority)?answers.priority:[answers.priority].filter(Boolean);
+  const feel=Array.isArray(answers.feel)?answers.feel:[answers.feel].filter(Boolean);
+
+  if(c[2]<=+$("#budget").value) bits.push("binnen je budget");
+  if(fuel.includes("any")||fuel.includes(c[3])) bits.push("juiste aandrijving");
+  if(type.includes(c[4])) bits.push("gekozen carrosserie");
+  if(answers.use && c[6].includes(answers.use)) bits.push("past bij je gebruik");
+  if(answers.people && c[5]>=+answers.people) bits.push("genoeg zitplaatsen");
+  if(priority.some(x=>x!=="range" && c[7].includes(x))) bits.push("past bij je prioriteiten");
+  if(priority.includes("range") && c[3]==="electric") bits.push("past bij je elektrische voorkeur");
+  if(feel.some(x=>c[8].includes(x))) bits.push("past bij je gewenste rijgevoel");
+
+  return bits.length
+    ? "Sterke punten: "+bits.join(", ")+"."
+    : "Deze auto scoort vooral op je totale profiel.";
+}
+function toggleFav(key){let k=key.replace("|","");favorites.has(k)?favorites.delete(k):favorites.add(k);renderResults()}
+function toggleCompare(key){let k=key.replace("|","");if(compare.has(k))compare.delete(k);else if(compare.size<3)compare.add(k);else return toast("Je kunt maximaal 3 auto's vergelijken.");renderResults()}
+function openCompare(){if(!compare.size)return toast("Selecteer eerst auto's om te vergelijken.");let cs=cars.filter(c=>compare.has(c[0]+c[1]));$("#compareContent").innerHTML=`<div class="comparegrid">${cs.map(c=>`<div class="compareitem"><h3>${c[0]} ${c[1]}</h3><p>💶 €${c[2].toLocaleString("nl-NL")}</p><p>⚡ ${c[3]}</p><p>🚗 ${c[4]}</p><p>👥 ${c[5]} personen</p><p>🎯 Match: ${score(c)}%</p></div>`).join("")}</div>`;$("#compare").style.display="block"}
+function closeCompare(){$("#compare").style.display="none"}
+function showFavorites(){if(!results.length)return toast("Doe eerst de vragenlijst.");let fav=results.filter(x=>favorites.has(x.c[0]+x.c[1]));if(!fav.length)return toast("Je hebt nog geen favorieten.");$("#cards").innerHTML="";fav.forEach(x=>{});results=fav;renderResults();toast("Je favorieten worden getoond.")}
+function details(key){
+  let c=cars.find(x=>x[0]+"|"+x[1]===key);
+  if(!c)return;
+  const s=score(c);
+  $("#detailsContent").innerHTML=`
+    <div class="eyebrow">Persoonlijk auto-profiel</div>
+    <h2 style="font-size:38px;margin:7px 0">${c[0]} ${c[1]}</h2>
+    <div class="visual" style="border-radius:18px;margin:18px 0;font-size:90px">${c[9]}</div>
+
+    <div id="details3dButton" style="display:flex;justify-content:flex-end;margin-top:14px">
+      ${has3DModel(c[0],c[1]) ? `<button class="btn primary" onclick="document.querySelector('.model3d-wrap')?.scrollIntoView({behavior:'smooth',block:'center'})">🧊 Open 3D-model</button>` : ""}
+    </div>
+    <div class="model3d-wrap">
+      <div class="model3d-head">
+        <strong>🧊 3D-model</strong>
+        <span>${has3DModel(c[0],c[1]) ? "Draai met je muis en zoom in/uit" : "Voor dit model is nog geen geschikte 3D-viewer gekoppeld."}</span>
+      </div>
+      ${has3DModel(c[0],c[1])
+        ? `<a class="model3d-external" href="${direct3DUrl(c[0],c[1])}" target="_blank" rel="noopener noreferrer">↗ Open 3D-model apart</a>`
+        : ""}
+      ${has3DModel(c[0],c[1])
+        ? `<iframe class="model3d-frame"
+             src="${model3DUrl(c[0],c[1])}"
+             title="3D-model van ${c[0]} ${c[1]}"
+             allow="autoplay; fullscreen; xr-spatial-tracking"
+             allowfullscreen></iframe>`
+        : `<div class="model3d-empty">We hebben nog geen passende 3D-versie voor deze auto gekoppeld. De rest van AutoMatch blijft gewoon werken.</div>`}
+    </div>
+    <div class="comparegrid">
+      <div class="compareitem"><b>Prijs</b><p>± €${c[2].toLocaleString("nl-NL")}</p></div>
+      <div class="compareitem"><b>Aandrijving</b><p>${c[3]}</p></div>
+      <div class="compareitem"><b>Carrosserie</b><p>${c[4]}</p></div>
+      <div class="compareitem"><b>Zitplaatsen</b><p>${c[5]}</p></div>
+      <div class="compareitem"><b>Match</b><p style="color:#68b2ff;font-size:25px;font-weight:900">${s}%</p></div>
+      <div class="compareitem"><b>Gebruik</b><p>${c[6].join(" · ")}</p></div>
+    </div>
+    <div style="margin-top:18px;background:#ffffff07;padding:17px;border-radius:16px">
+      <b>Waarom deze auto?</b>
+      <p class="muted" style="line-height:1.6">${why(c)}</p>
+    </div>
+    ${officialButton(c[0])}`;
+  $("#detailsModal").style.display="block";
+}
+function closeDetails(){$("#detailsModal").style.display="none"}
+$$(".chip[data-sort]").forEach(x=>x.onclick=()=>{$$(".chip[data-sort]").forEach(y=>y.classList.remove("on"));x.classList.add("on");sort=x.dataset.sort;renderResults()});
+function restart(){location.reload()}function toast(t){let x=$("#toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+renderStep();
+</script>
+
+<script id="automatch-analytics">
+  // Lokale analytics: geen Firebase, geen account en geen server nodig.
+  const STORAGE_KEY = "automatch_local_events_v1";
+  const SESSION_KEY = "automatch_session_id";
+  const START_KEY = "automatch_started_at";
+  const sessionId = sessionStorage.getItem(SESSION_KEY) || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random().toString(16).slice(2));
+  sessionStorage.setItem(SESSION_KEY, sessionId);
+  const startedAt = sessionStorage.getItem(START_KEY) || new Date().toISOString();
+  sessionStorage.setItem(START_KEY, startedAt);
+
+  function readEvents(){
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+    catch { return []; }
+  }
+  function writeEvents(events){
+    try {
+      // Houd de laatste 10.000 events bij zodat de browser niet oneindig groeit.
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(events.slice(-10000)));
+    } catch(err) { console.warn("AutoMatch lokale opslag is niet beschikbaar.", err); }
+  }
+  function plainAnswers() {
+    return JSON.parse(JSON.stringify({
+      brands: answers.brands || [],
+      budget: Number($("#budget")?.value || 0),
+      fuel: answers.fuel || [],
+      use: answers.use || "",
+      type: answers.type || [],
+      priority: answers.priority || [],
+      people: answers.people || "",
+      feel: answers.feel || []
+    }));
+  }
+  function track(action, details = {}, extra = {}) {
+    const event = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random().toString(16).slice(2),
+      sessionId,
+      action,
+      details,
+      step,
+      startedAt,
+      status: extra.status || (step >= 8 ? "completed" : "active"),
+      answers: plainAnswers(),
+      path: location.pathname,
+      createdAt: new Date().toISOString(),
+      completedAt: extra.completedAt ? new Date().toISOString() : null,
+      topMatches: extra.topMatches || []
+    };
+    const events = readEvents();
+    events.push(event);
+    writeEvents(events);
+    // Laat een eventueel open admin-tab onmiddellijk verversen.
+    try { localStorage.setItem("automatch_last_ping", String(Date.now())); } catch {}
+    return event;
+  }
+  window.autoMatchTrack = track;
+  track("session_started", { page: location.pathname });
+
+  document.addEventListener("click", (e) => {
+    const opt = e.target.closest(".opt");
+    if (opt) {
+      const grid = opt.closest("[data-key]");
+      track("answer_changed", {
+        key: grid?.dataset.key || "brands",
+        value: opt.dataset.v || opt.textContent.trim().slice(0, 80),
+        selected: opt.classList.contains("sel")
+      });
+    }
+
+    if (e.target.closest("#next")) {
+      const fromStep = step + 1;
+      setTimeout(() => {
+        if (fromStep === 8 && step === 7) {
+          track("quiz_completed", { resultCount: (results || []).length }, {
+            status: "completed",
+            completedAt: true,
+            topMatches: (results || []).slice(0, 10).map(x => ({brand:x.c[0],model:x.c[1],price:x.c[2],score:x.s}))
+          });
+        } else {
+          track("next_clicked", { fromStep });
+          track("step_viewed", { step: step + 1, total: 8 });
+        }
+      }, 0);
+    }
+    if (e.target.closest("#back")) {
+      const fromStep = step + 1;
+      setTimeout(() => {
+        track("back_clicked", { fromStep });
+        track("step_viewed", { step: step + 1, total: 8 });
+      }, 0);
+    }
+    if (e.target.closest(".heart")) setTimeout(() => track("favorite_toggled"), 0);
+    if (e.target.closest("button[onclick*='toggleCompare']")) setTimeout(() => track("compare_toggled"), 0);
+    if (e.target.closest("button[onclick*='details']")) setTimeout(() => track("details_opened"), 0);
+    if (e.target.closest("button[onclick='restart()']")) track("restart_clicked");
+  }, true);
+
+  $("#budget")?.addEventListener("change", e => track("budget_changed", { budget: Number(e.target.value) }));
+  window.addEventListener("beforeunload", () => {
+    track("session_closed", { durationSeconds: Math.round((Date.now() - new Date(startedAt).getTime()) / 1000) });
+  });
+</script>
+
+</body></html>
